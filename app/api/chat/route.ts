@@ -20,12 +20,5 @@ export async function POST(req: Request) {
     },
   });
 
-  const response = result.toUIMessageStreamResponse();
-
-  // Kompletnie usuń cache
-  response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
-
-  return response;
+  return result.toUIMessageStreamResponse();
 }
