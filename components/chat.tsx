@@ -16,6 +16,16 @@ export default function Chat() {
   const { sendMessage, messages, status, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
+      fetch: (url, options) => {
+        // Wymusz streaming bez buforowania
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...options?.headers,
+            "X-Stream-Direct": "true",
+          },
+        });
+      },
       prepareSendMessagesRequest: ({ messages }) => ({
         body: {
           messages,

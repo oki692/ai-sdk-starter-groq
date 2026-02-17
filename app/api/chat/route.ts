@@ -1,6 +1,6 @@
 import { model, modelID } from "@/ai/providers";
 import { weatherTool } from "@/ai/tools";
-import { convertToModelMessages, stepCountIs, streamText, UIMessage } from "ai";
+import { convertToModelMessages, streamText, UIMessage } from "ai";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -17,7 +17,6 @@ export async function POST(req: Request) {
     model: model.languageModel(selectedModel),
     system: "You are a helpful assistant.",
     messages: await convertToModelMessages(messages),
-    stopWhen: stepCountIs(5), // enable multi-step agentic flow
     tools: {
       getWeather: weatherTool,
     },
@@ -39,10 +38,11 @@ export async function POST(req: Request) {
     },
   });
 
-  // Usun buforowanie - kazda odpowiedz jest unikalna
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  // Usun wszelkie buforowanie - streaming musi byc natychmiast
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0");
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
-
+  response.headers.set("Surrogate-Control", "no-store");
+  
   return response;
 }
