@@ -132,6 +132,9 @@ const PurePreviewMessage = ({
             {message.parts?.map((part, i) => {
               switch (part.type) {
                 case "text":
+                  const isLastPart = i === (message.parts?.length ?? 0) - 1;
+                  const isStreaming = isLatestMessage && status === "streaming" && message.role === "assistant" && isLastPart;
+                  
                   return (
                     <motion.div
                       initial={{ y: 5, opacity: 0 }}
@@ -140,12 +143,19 @@ const PurePreviewMessage = ({
                       className="flex flex-row gap-2 items-start w-full pb-4"
                     >
                       <div
-                        className={cn("flex flex-col gap-4", {
+                        className={cn("flex flex-col gap-4 relative", {
                           "bg-secondary text-secondary-foreground px-3 py-2 rounded-tl-xl rounded-tr-xl rounded-bl-xl":
                             message.role === "user",
                         })}
                       >
                         <Streamdown>{part.text}</Streamdown>
+                        {isStreaming && (
+                          <motion.span
+                            className="inline-block w-1 h-5 bg-current ml-1"
+                            animate={{ opacity: [1, 0.5, 1] }}
+                            transition={{ duration: 0.8, repeat: Infinity }}
+                          />
+                        )}
                       </div>
                     </motion.div>
                   );

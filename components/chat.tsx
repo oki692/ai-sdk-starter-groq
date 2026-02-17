@@ -2,6 +2,7 @@
 
 import { defaultModel, modelID } from "@/ai/providers";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useState } from "react";
 import { Textarea } from "./textarea";
 import { ProjectOverview } from "./project-overview";
@@ -13,6 +14,15 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<modelID>(defaultModel);
   const { sendMessage, messages, status, stop } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: {
+          messages,
+          selectedModel,
+        },
+      }),
+    }),
     onError: (error) => {
       toast.error(
         error.message.length > 0
@@ -38,7 +48,7 @@ export default function Chat() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          sendMessage({ text: input }, { body: { selectedModel } });
+          sendMessage({ text: input });
           setInput("");
         }}
         className="pb-8 bg-white dark:bg-black w-full max-w-xl mx-auto px-4 sm:px-0"
