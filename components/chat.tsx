@@ -59,8 +59,6 @@ export default function Chat() {
           handleInputChange={(e) => setInput(e.currentTarget.value)}
           input={input}
           isLoading={isLoading}
-          status={status}
-          stop={stop}
         />
       </form>
     </div>
