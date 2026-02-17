@@ -21,7 +21,6 @@ export const Textarea = ({
   return (
     <div className="relative w-full pt-4">
       <PromptBox
-        isLoading={isLoading}
         value={input}
         autoFocus
         placeholder={"Say something..."}
