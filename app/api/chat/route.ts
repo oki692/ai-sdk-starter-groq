@@ -4,6 +4,8 @@ import { convertToModelMessages, stepCountIs, streamText, UIMessage } from "ai";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function POST(req: Request) {
   const {
@@ -14,7 +16,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: model.languageModel(selectedModel),
     system: "You are a helpful assistant.",
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
     stopWhen: stepCountIs(5), // enable multi-step agentic flow
     tools: {
       getWeather: weatherTool,
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
     },
   });
 
-  return result.toUIMessageStreamResponse({
+  const response = result.toUIMessageStreamResponse({
     sendReasoning: true,
     onError: (error) => {
       if (error instanceof Error) {
@@ -36,4 +38,11 @@ export async function POST(req: Request) {
       return "An error occurred.";
     },
   });
+
+  // Usun buforowanie - kazda odpowiedz jest unikalna
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+
+  return response;
 }
