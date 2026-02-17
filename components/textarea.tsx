@@ -18,9 +18,17 @@ export const Textarea = ({
   selectedModel,
   setSelectedModel,
 }: InputProps) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() && !isLoading) {
+      const form = e.currentTarget as HTMLFormElement;
+      form.requestSubmit();
+    }
+  };
+
   return (
     <div className="relative w-full pt-4">
-      <form className="contents">
+      <form className="contents" onSubmit={handleSubmit}>
         <PromptBox
           value={input}
           autoFocus
