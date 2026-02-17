@@ -1,13 +1,20 @@
 // component.tsx
 import * as React from "react";
+import { motion } from "motion/react";
 
 type ClassValue = string | number | boolean | null | undefined;
 function cn(...inputs: ClassValue[]): string { return inputs.filter(Boolean).join(" "); }
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}> <path d="M12 5.25L12 18.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M18.75 12L12 5.25L5.25 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> </svg> );
 
-export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, value, onChange, ...props }, ref) => {
+const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}> <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="60" strokeDashoffset="0" /> </svg> );
+
+interface PromptBoxProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  isLoading?: boolean;
+}
+
+export const PromptBox = React.forwardRef<HTMLTextAreaElement, PromptBoxProps>(
+  ({ className, value, onChange, isLoading = false, ...props }, ref) => {
     const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
     React.useImperativeHandle(ref, () => internalTextareaRef.current!, []);
     
@@ -39,10 +46,26 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
         />
         <div className="mt-0.5 p-1 pt-0">
           <div className="flex items-center justify-end gap-2">
-            <button type="submit" disabled={!hasValue} title="Send" className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none bg-black text-white hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80 disabled:bg-black/40 dark:disabled:bg-[#515151]">
-              <SendIcon className="h-6 w-6" />
-              <span className="sr-only">Send message</span>
-            </button>
+            {isLoading ? (
+              <motion.button 
+                type="button"
+                disabled 
+                title="Streaming response..." 
+                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none bg-black text-white opacity-80"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <LoadingIcon className="h-6 w-6" />
+                </motion.div>
+              </motion.button>
+            ) : (
+              <button type="submit" disabled={!hasValue} title="Send" className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none bg-black text-white hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80 disabled:bg-black/40 dark:disabled:bg-[#515151]">
+                <SendIcon className="h-6 w-6" />
+                <span className="sr-only">Send message</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

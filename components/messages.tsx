@@ -1,5 +1,6 @@
 import type { UIMessage } from "ai";
 import { Message } from "./message";
+import { StreamingIndicator } from "./streaming-indicator";
 import { useScrollToBottom } from "@/lib/hooks/use-scroll-to-bottom";
 
 export const Messages = ({
@@ -12,6 +13,8 @@ export const Messages = ({
   status: "error" | "submitted" | "streaming" | "ready";
 }) => {
   const [containerRef, endRef] = useScrollToBottom();
+  const isStreaming = status === "streaming";
+  
   return (
     <div
       className="flex-1 h-full space-y-4 overflow-y-auto py-8"
@@ -27,6 +30,9 @@ export const Messages = ({
             status={status}
           />
         ))}
+        <div className="px-4 py-2">
+          <StreamingIndicator isStreaming={isStreaming} />
+        </div>
         <div className="h-1" ref={endRef} />
       </div>
     </div>

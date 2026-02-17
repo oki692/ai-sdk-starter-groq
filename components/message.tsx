@@ -16,6 +16,7 @@ import {
   StopCircle,
 } from "lucide-react";
 import { SpinnerIcon } from "./icons";
+import { LiveBadge } from "./live-badge";
 
 interface ReasoningMessagePartProps {
   part: ReasoningUIPart;
@@ -128,10 +129,13 @@ const PurePreviewMessage = ({
           )}
         >
 
-          <div className="flex flex-col w-full space-y-4">
+        <div className="flex flex-col w-full space-y-4">
             {message.parts?.map((part, i) => {
               switch (part.type) {
                 case "text":
+                  const isLastPart = i === (message.parts?.length ?? 0) - 1;
+                  const isStreaming = isLatestMessage && status === "streaming" && message.role === "assistant" && isLastPart;
+                  
                   return (
                     <motion.div
                       initial={{ y: 5, opacity: 0 }}
@@ -140,12 +144,22 @@ const PurePreviewMessage = ({
                       className="flex flex-row gap-2 items-start w-full pb-4"
                     >
                       <div
-                        className={cn("flex flex-col gap-4", {
+                        className={cn("flex flex-col gap-4 relative", {
                           "bg-secondary text-secondary-foreground px-3 py-2 rounded-tl-xl rounded-tr-xl rounded-bl-xl":
                             message.role === "user",
                         })}
                       >
-                        <Streamdown>{part.text}</Streamdown>
+                        <div className="flex items-start justify-between gap-2">
+                          <Streamdown>{part.text}</Streamdown>
+                          {isStreaming && <LiveBadge show={true} />}
+                        </div>
+                        {isStreaming && part.text && (
+                          <motion.span
+                            className="inline-block w-1 h-5 bg-current ml-1"
+                            animate={{ opacity: [1, 0] }}
+                            transition={{ duration: 0.6, repeat: Infinity }}
+                          />
+                        )}
                       </div>
                     </motion.div>
                   );
